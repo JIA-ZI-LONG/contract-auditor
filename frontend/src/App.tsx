@@ -125,7 +125,7 @@ export function App() {
       {/* Footer */}
       <footer className="footer">
         <p className="footer-text">
-          Powered by <span className="footer-brand">EY</span> • Technology Risk and Data Analytics
+          Powered by <span className="footer-brand">EY-Technology Risk and Data Analytics</span> · 专业税务合规智能分析
         </p>
       </footer>
     </div>
