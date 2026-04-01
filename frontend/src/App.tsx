@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FileUpload } from './components/FileUpload';
 import { ProgressBar } from './components/ProgressBar';
 import { DownloadButton } from './components/DownloadButton';
-import { uploadContract } from './api/upload';
+import { uploadContractWithProgress, ProgressEvent } from './api/upload';
 import './App.css';
 
 type Status = 'idle' | 'uploading' | 'processing' | 'done' | 'error';
@@ -23,11 +23,18 @@ export function App() {
   const handleStart = async () => {
     if (!selectedFile) return;
 
-    setStatus('uploading');
+    setStatus('processing');
     setError('');
+    setProgress({ current: 0, total: 0, section: '正在连接服务...' });
 
     try {
-      const blob = await uploadContract(selectedFile);
+      const blob = await uploadContractWithProgress(selectedFile, (event: ProgressEvent) => {
+        setProgress({
+          current: event.current,
+          total: event.total,
+          section: event.section || ''
+        });
+      });
       setResultBlob(blob);
       setStatus('done');
     } catch (err) {
@@ -49,7 +56,7 @@ export function App() {
       {/* Hero Header */}
       <header className="hero">
         <div className="hero-content">
-          <h1 className="hero-title">税务合同审计助手</h1>
+          <h1 className="hero-title">智能合规审计助手</h1>
           <div className="gold-line" />
           <p className="hero-subtitle">智能合规分析 · 专业风险识别</p>
         </div>
@@ -58,10 +65,10 @@ export function App() {
       {/* Main Content */}
       <main className="main-content">
         {/* Upload Card */}
-        <div className={`upload-card ${status === 'uploading' ? 'processing-overlay' : ''}`}>
+        <div className={`upload-card ${status === 'processing' ? 'processing-overlay' : ''}`}>
           <FileUpload
             onFileSelect={handleFileSelect}
-            disabled={status === 'uploading' || status === 'processing'}
+            disabled={status === 'processing'}
             selectedFile={selectedFile}
           />
 
@@ -80,7 +87,7 @@ export function App() {
             </div>
           )}
 
-          {(status === 'uploading' || status === 'processing') && (
+          {status === 'processing' && (
             <ProgressBar
               current={progress.current}
               total={progress.total}
@@ -125,7 +132,7 @@ export function App() {
       {/* Footer */}
       <footer className="footer">
         <p className="footer-text">
-          Powered by <span className="footer-brand">EY-Technology Risk and Data Analytics</span> · 专业税务合规智能分析
+          Powered by <span className="footer-brand">EY - Technology Risk and Data Analytics</span> · 专业合规智能分析
         </p>
       </footer>
     </div>

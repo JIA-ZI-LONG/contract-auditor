@@ -5,13 +5,15 @@ interface ProgressBarProps {
 }
 
 export function ProgressBar({ current, total, sectionName }: ProgressBarProps) {
-  const percentage = Math.round((current / total) * 100);
+  const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
 
   return (
     <div className="progress-section">
       <div className="progress-header">
         <span className="progress-title">审计进度</span>
-        <span className="progress-stats">{current} / {total} 章节</span>
+        <span className="progress-stats">
+          {total > 0 ? `${current} / ${total} 章节` : '准备中...'}
+        </span>
       </div>
 
       <div className="progress-bar-container">

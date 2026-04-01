@@ -1,8 +1,10 @@
 import os
 import tempfile
 import logging
+import json
+import asyncio
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from services.contract_parser import ContractParser
@@ -32,37 +34,28 @@ ai_analyzer = AIAnalyzer()
 report_generator = ReportGenerator()
 
 
-@app.post("/api/upload")
-async def upload_contract(file: UploadFile = File(...)):
-    """
-    上传合同进行审计
+async def process_contract_with_progress(temp_path: str, filename: str):
+    """处理合同并通过SSE推送进度"""
 
-    Args:
-        file: docx合同文件
-
-    Returns:
-        审计报告docx文件
-    """
-    logger.info(f"Received file: {file.filename}")
-
-    # 验证文件类型
-    if not file.filename.endswith(".docx"):
-        raise HTTPException(status_code=400, detail="只支持docx格式文件")
-
-    # 保存临时文件
-    with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as temp:
-        content = await file.read()
-        temp.write(content)
-        temp_path = temp.name
+    def progress_event(stage: str, current: int, total: int, section: str = ""):
+        return f"data: {json.dumps({'stage': stage, 'current': current, 'total': total, 'section': section})}\n\n"
 
     try:
         # 1. 解析合同
+        yield progress_event("parsing", 0, 0, "正在解析合同...")
         sections = parser.parse(temp_path)
         logger.info(f"Parsed {len(sections)} sections")
+        yield progress_event("parsed", 0, len(sections), "解析完成")
+
+        await asyncio.sleep(0.1)
 
         # 2. 逐章节分析
         audit_results = []
-        for section in sections:
+        for i, section in enumerate(sections):
+            # 推送当前进度
+            yield progress_event("analyzing", i + 1, len(sections), section.section_name)
+            logger.info(f"Analyzing section {i + 1}/{len(sections)}: {section.section_name}")
+
             # 提取关键词
             keywords = await ai_analyzer.extract_keywords(section.content)
             logger.info(f"Keywords for {section.section_name}: {keywords}")
@@ -81,7 +74,10 @@ async def upload_contract(file: UploadFile = File(...)):
             audit_result.section_name = section.section_name
             audit_results.append(audit_result)
 
+            await asyncio.sleep(0.1)
+
         # 3. 生成摘要
+        yield progress_event("summary", len(sections), len(sections), "正在生成摘要...")
         high_risk_count = sum(1 for r in audit_results if r.risk_level == "高风险")
         non_compliant_count = sum(1 for r in audit_results if r.risk_level == "不合规")
 
@@ -94,25 +90,85 @@ async def upload_contract(file: UploadFile = File(...)):
             summary += "整体合规性良好。"
 
         # 4. 生成报告
+        yield progress_event("generating", len(sections), len(sections), "正在生成报告...")
         report = AuditReport(sections=audit_results, summary=summary)
         report_path = report_generator.generate(report, "审计报告.docx")
 
-        # 5. 返回文件
-        return FileResponse(
-            path=report_path,
-            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            filename="审计报告.docx"
-        )
+        # 5. 完成
+        yield progress_event("done", len(sections), len(sections), filename)
+        logger.info("Audit completed")
 
-    finally:
-        # 清理临时文件
-        os.unlink(temp_path)
+    except Exception as e:
+        logger.error(f"Error processing contract: {e}")
+        yield f"data: {json.dumps({'stage': 'error', 'message': str(e)})}\n\n"
+
+
+@app.post("/api/upload-stream")
+async def upload_contract_stream(file: UploadFile = File(...)):
+    """
+    上传合同进行审计，通过SSE返回进度和结果
+
+    Args:
+        file: docx合同文件
+
+    Returns:
+        SSE流，包含进度和最终结果
+    """
+    logger.info(f"Received file: {file.filename}")
+
+    # 验证文件类型
+    if not file.filename.endswith(".docx"):
+        raise HTTPException(status_code=400, detail="只支持docx格式文件")
+
+    # 保存临时文件
+    with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as temp:
+        content = await file.read()
+        temp.write(content)
+        temp_path = temp.name
+
+    return StreamingResponse(
+        process_contract_with_progress(temp_path, file.filename),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        }
+    )
+
+
+@app.get("/api/download/{filename}")
+async def download_report(filename: str):
+    """下载审计报告"""
+    report_path = os.path.join(os.getcwd(), "审计报告.docx")
+    if not os.path.exists(report_path):
+        raise HTTPException(status_code=404, detail="报告不存在")
+
+    return FileResponse(
+        path=report_path,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        filename=filename
+    )
 
 
 @app.get("/api/health")
 async def health_check():
     """健康检查"""
     return {"status": "ok"}
+
+
+# 清理临时文件的异步任务
+import atexit
+temp_files = []
+
+def cleanup_temp_files():
+    for path in temp_files:
+        try:
+            if os.path.exists(path):
+                os.unlink(path)
+        except:
+            pass
+
+atexit.register(cleanup_temp_files)
 
 
 if __name__ == "__main__":
