@@ -1,0 +1,35 @@
+variables:
+  app_name: eycai-tac-mcp
+  uat_registry_url: eycaiuatacr-registry.cn-shanghai.cr.aliyuncs.com/eyc-uat/mcp
+  uat_registry_url_uat: eycaiprodacr-registry.cn-shanghai.cr.aliyuncs.com/eycai_prod/mcp
+
+  
+  
+
+pool:
+  name: Azure-Linux-Agent
+
+
+name: $(Build.BuildId)-$(Year:yyyy).$(Month).$(DayOfMonth)
+
+trigger: none
+pr: none
+
+jobs:
+- job: Infosec_Env
+  workspace:
+    clean: all
+  steps:  
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+        echo "--------------------------------------build Project to images--------------------------------------------"
+        docker build -t $(uat_registry_url):tac_es_uat .
+        docker login --username=eycaiacr@1993841844607031 --password '1q2w3e4r' eycaiuatacr-registry.cn-shanghai.cr.aliyuncs.com
+        docker push $(uat_registry_url):tac_es_uat
+        docker build -t $(uat_registry_url_uat):tac_es_uat_4_prod-$(Build.BuildId) .
+        docker login --username=acr-eycai-prod@1768545727311878 --password 'raV4XNRMKtP7' eycaiprodacr-registry.cn-shanghai.cr.aliyuncs.com
+        docker push $(uat_registry_url_uat):tac_es_uat_4_prod-$(Build.BuildId)
+
+      displayName: 'build Project to images'

@@ -1,0 +1,119 @@
+variables:
+- name: app_name
+  value: eycai-tac-mcp
+- name: uat_registry_url
+  value: eycaiuatacr-registry.cn-shanghai.cr.aliyuncs.com/eyc-uat/mcp
+- name: uat_registry_url_uat
+  value: eycaiprodacr-registry.cn-shanghai.cr.aliyuncs.com/eycai_prod/mcp
+- name: project_name
+  value: eyc-ai-tac-es-mcp
+- name: image_tag
+  value: uat-$(Build.BuildId)
+- name: productName
+  value: China-CBS-EYC.ai
+- name: Frontend_or_Backend
+  value: backend
+- group: uat-variable-group
+
+resources:
+  repositories:
+  - repository: devops-scripts
+    type: git
+    name: Tiger Application Support/devops-scripts
+    ref: uat
+    trigger: none
+
+
+pool:
+  name: Azure-Linux-Agent
+
+
+name: $(Build.BuildId)-$(Year:yyyy).$(Month).$(DayOfMonth)
+
+trigger: none
+pr: none
+
+jobs:
+- job: Dev_Env
+  steps:
+  - task: Checkmarx AST@3
+    inputs:
+      CheckmarxService: 'Checkmarx-One-$(System.TeamProject)'
+      projectName: 'eycai-tac-mcp'
+      branchName: 'dev'
+      tenantName: 'vmey'
+    displayName: Checkmarx Scan
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+        echo "--------------------------------------build Project to images--------------------------------------------"
+        docker build -t $(uat_registry_url):tac_es_uat .
+        docker login --username=eycaiacr@1993841844607031 --password '1q2w3e4r' eycaiuatacr-registry.cn-shanghai.cr.aliyuncs.com
+        docker push $(uat_registry_url):tac_es_uat
+        docker build -t $(uat_registry_url_uat):tac_es_uat_4_prod-$(Build.BuildId) .
+        docker login --username=acr-eycai-prod@1768545727311878 --password 'raV4XNRMKtP7' eycaiprodacr-registry.cn-shanghai.cr.aliyuncs.com
+        docker push $(uat_registry_url_uat):tac_es_uat_4_prod-$(Build.BuildId)
+    displayName: 'build Project to images'
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+        echo "---------------------------------------Mend Scan--------------------------------------------"
+        echo "---------------------Download wss-unified-agent-$(Frontend_or_Backend).conf -------------------------------------"
+        Mend_conf_name=wss-unified-agent-python.conf
+        echo "--------------------------------------Download wss-unified-agent.jar---------------------------------"
+        git -c http.extraHeader="Authorization: Basic $(zhenyuPAT)" clone   https://azure-devops.ey.com.cn/Assurance-Digital/DevOps/_git/Infosec_Tools
+        mv Infosec_Tools/whitesource/wss-unified-agent.jar wss-unified-agent.jar
+        mv Infosec_Tools/whitesource/wss-unified-agent-python.conf $Mend_conf_name
+        echo "---------------------------------------sed config--------------------------------------------"
+        ls -la
+        sed -i 's/ReplaceProjectName/$(System.TeamProject)-$(Frontend_or_Backend)/g'   $Mend_conf_name
+        sed -i 's/ReplaceproductName/China-CBS-EYQ.GC/g' $Mend_conf_name
+        echo "----------------------View $Mend_conf_name------------------------------------------"
+        cat $Mend_conf_name
+        echo "----------------------Run Mend Scan------------------------------------------"
+        java --version
+        chmod +x wss-unified-agent.jar
+        java -jar wss-unified-agent.jar -c $Mend_conf_name -apikey 05e19a2134d0457db13bcf8e374be5638cc75d939309425ea1e9b19a778286f6 -userkey e5156a86dfd84b31b477ec3cd63fa6696f19296ad4d541298e4db47180b4e745  -projectVersion $(Build.SourceBranchName)-$(Build.BuildId)
+        rm -rf wss-unified-agent*
+    displayName: 'OSS_Mend_Scan'
+  # - task: whitesource.WhiteSource-azure-devops-services.bolt.wss.WhiteSource@21
+  #   displayName: WhiteSource
+  #   continueOnError: true
+  #   inputs:
+  #     projectName: '$(System.TeamProject)-Backend'
+  #     configuration: |
+  #      projectVersion=V1.0.$(Build.BuildId)
+  #      python.resolveDependencies=true
+  #      python.ignoreSourceFiles=true
+  #      python.ignorePipInstallErrors=true
+  #      python.installVirtualenv=true
+  #      python.resolveHierarchyTree=true
+  #      python.requirementsFileIncludes=requirements.txt
+  #      python.resolveSetupPyFiles=true
+  #      python.runPipenvPreStep=true
+  #      python.pipenvDevDependencies=true
+  #      python.IgnorePipenvInstallErrors=true
+  #      python.resolveGlobalPackages=true
+  #      #python.localPackagePathsToInstall=/path/to/local/dependency.egg, /path/to/local/dependency.zip
+  #      python.resolvePipEditablePackages
+  #      #python.path=/path/to/python
+  #      #python.pipPath=/path/to/pip
+  #      python.runPoetryPreStep=true
+  #      python.includePoetryDevDependencies=true
+  #      docker.scanImages=true
+  #      docker.scanContainers=true
+  #      docker.scanRunningContainers=true
+  #      docker.includePendingContainers=true
+  #      docker.layersToScan=all
+  - task: aquasec.aquasec.showCommits.aquasecScanner@4
+    displayName: 'Container_Aquasec'
+    inputs:
+      image: $(uat_registry_url_uat):tac_es_uat_4_prod-$(Build.BuildId)
+      scanner: cnazprodaquacr01.azurecr.cn/aquasec/scanner:latest
+      runOptions: --privileged
+      registry: $(uat_registry_url_uat)
+      connection: Aqua-Console
+      customFlags: --direct-cc
+    continueOnError: true
