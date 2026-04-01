@@ -125,7 +125,7 @@ export function App() {
       {/* Footer */}
       <footer className="footer">
         <p className="footer-text">
-          Powered by <span className="footer-brand">GLM-5</span> · 专业税务合规智能分析
+          Powered by <span className="footer-brand">EY</span> • Technology Risk and Data Analytics
         </p>
       </footer>
     </div>
