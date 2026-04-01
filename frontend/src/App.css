@@ -2,20 +2,22 @@
    Tax Contract Auditor - Editorial Luxury
    ======================================== */
 
-/* Main Container */
+/* Main Container - Fixed viewport */
 .app-container {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--paper);
+  overflow: hidden;
 }
 
-/* Hero Header */
+/* Hero Header - Compact */
 .hero {
   background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-light) 100%);
-  padding: var(--space-2xl) var(--space-lg);
+  padding: var(--space-lg) var(--space-md);
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 /* Decorative gradient orbs */
@@ -56,17 +58,17 @@
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 600;
   color: var(--cream);
   letter-spacing: 0.02em;
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-xs);
   animation: fadeInUp 0.8s var(--ease-smooth) forwards;
 }
 
 .hero-subtitle {
   font-family: var(--font-body);
-  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
   color: var(--gold-light);
   opacity: 0.9;
   animation: fadeInUp 0.8s var(--ease-smooth) 0.2s forwards;
@@ -86,10 +88,10 @@
 
 /* Gold accent line */
 .gold-line {
-  width: 80px;
+  width: 60px;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  margin: var(--space-lg) auto;
+  margin: var(--space-sm) auto;
   animation: expand 0.6s var(--ease-smooth) 0.4s forwards;
   transform: scaleX(0);
 }
@@ -98,11 +100,14 @@
   to { transform: scaleX(1); }
 }
 
-/* Main Content Area */
+/* Main Content Area - Centered */
 .main-content {
   flex: 1;
-  padding: var(--space-xl) var(--space-lg);
-  max-width: 800px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  max-width: 600px;
   margin: 0 auto;
   width: 100%;
 }
@@ -112,11 +117,12 @@
   background: var(--cream);
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
-  padding: var(--space-xl);
+  padding: var(--space-lg);
   position: relative;
   transition: all 0.4s var(--ease-smooth);
   animation: cardFadeIn 0.6s var(--ease-smooth) 0.5s forwards;
   opacity: 0;
+  width: 100%;
 }
 
 @keyframes cardFadeIn {
@@ -147,7 +153,7 @@
 .upload-zone {
   border: 2px dashed var(--border-strong);
   border-radius: 12px;
-  padding: var(--space-xl);
+  padding: var(--space-lg);
   text-align: center;
   cursor: pointer;
   transition: all 0.3s var(--ease-smooth);
@@ -174,11 +180,11 @@
 }
 
 .upload-icon-wrapper {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto var(--space-lg);
+  width: 60px;
+  height: 60px;
+  margin: 0 auto var(--space-md);
   background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
-  border-radius: 20px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -190,8 +196,8 @@
 }
 
 .upload-icon {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   stroke: var(--gold-light);
   stroke-width: 1.5;
   fill: none;
@@ -199,20 +205,20 @@
 
 .upload-text {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-xs);
 }
 
 .upload-text-selected {
   font-family: var(--font-display);
-  font-size: 1.125rem;
+  font-size: 1rem;
   color: var(--navy);
   font-weight: 600;
 }
 
 .upload-hint {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
 }
 
@@ -225,15 +231,15 @@
   background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
   color: var(--navy-deep);
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  padding: var(--space-md) var(--space-xl);
+  padding: var(--space-sm) var(--space-lg);
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s var(--ease-smooth);
   box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3);
-  margin-top: var(--space-lg);
+  margin-top: var(--space-md);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -277,9 +283,9 @@
 .progress-section {
   background: var(--cream);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: var(--space-xl);
-  margin-top: var(--space-lg);
+  border-radius: 12px;
+  padding: var(--space-md);
+  margin-top: var(--space-md);
   animation: cardFadeIn 0.4s var(--ease-smooth) forwards;
 }
 
@@ -287,19 +293,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-sm);
 }
 
 .progress-title {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1rem;
   color: var(--navy);
   font-weight: 600;
 }
 
 .progress-stats {
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: var(--gold);
   font-weight: 600;
 }
@@ -350,7 +356,7 @@
 /* Success State */
 .success-section {
   text-align: center;
-  padding: var(--space-xl);
+  padding: var(--space-lg);
   animation: successFadeIn 0.6s var(--ease-smooth) forwards;
 }
 
@@ -366,9 +372,9 @@
 }
 
 .success-icon-wrapper {
-  width: 100px;
-  height: 100px;
-  margin: 0 auto var(--space-lg);
+  width: 70px;
+  height: 70px;
+  margin: 0 auto var(--space-md);
   background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
   border-radius: 50%;
   display: flex;
@@ -379,12 +385,12 @@
 
 @keyframes successPulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.4); }
-  50% { box-shadow: 0 0 0 20px rgba(201, 162, 39, 0); }
+  50% { box-shadow: 0 0 0 15px rgba(201, 162, 39, 0); }
 }
 
 .success-icon {
-  width: 48px;
-  height: 48px;
+  width: 32px;
+  height: 32px;
   stroke: var(--navy-deep);
   stroke-width: 2;
   fill: none;
@@ -392,17 +398,17 @@
 
 .success-title {
   font-family: var(--font-display);
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   color: var(--navy);
   font-weight: 600;
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-xs);
 }
 
 .success-subtitle {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: var(--text-secondary);
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-md);
 }
 
 .success-buttons {
@@ -416,11 +422,11 @@
   background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
   color: var(--cream);
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  padding: var(--space-md) var(--space-xl);
+  padding: var(--space-sm) var(--space-lg);
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s var(--ease-smooth);
   box-shadow: 0 4px 12px rgba(26, 39, 68, 0.3);
@@ -437,8 +443,8 @@
   background: rgba(220, 53, 69, 0.05);
   border: 1px solid rgba(220, 53, 69, 0.2);
   border-radius: 12px;
-  padding: var(--space-lg);
-  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  margin-top: var(--space-md);
   text-align: center;
 }
 
@@ -483,12 +489,13 @@
   to { transform: translateX(100%); }
 }
 
-/* Footer */
+/* Footer - Compact */
 .footer {
-  padding: var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
   text-align: center;
   background: var(--cream);
   border-top: 1px solid var(--border-subtle);
+  flex-shrink: 0;
 }
 
 .footer-text {
@@ -506,24 +513,24 @@
 /* Responsive */
 @media (max-width: 768px) {
   .hero {
-    padding: var(--space-xl) var(--space-md);
+    padding: var(--space-md);
   }
 
   .main-content {
-    padding: var(--space-lg) var(--space-md);
+    padding: var(--space-sm);
   }
 
   .upload-card {
-    padding: var(--space-lg);
+    padding: var(--space-md);
   }
 
   .upload-zone {
-    padding: var(--space-lg);
+    padding: var(--space-md);
   }
 
   .upload-icon-wrapper {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
   }
 
   .success-buttons {
