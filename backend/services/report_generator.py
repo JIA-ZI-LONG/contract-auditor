@@ -35,10 +35,10 @@ class ReportGenerator:
             r.insert(0, rFonts)
         rFonts.set(qn('w:eastAsia'), font_name)
 
-    def _set_heading_font(self, heading, font_name: str = FONT_SONGTI):
+    def _set_heading_font(self, heading, font_name: str = FONT_SONGTI, size: int = 14):
         """设置标题字体"""
         for run in heading.runs:
-            self._set_run_font(run, font_name, size=24 if heading.level == 0 else (18 if heading.level == 1 else 14))
+            self._set_run_font(run, font_name, size=size)
 
     def _add_paragraph_with_font(self, doc, text: str, bold: bool = False, italic: bool = False):
         """添加带宋体的段落"""
@@ -69,11 +69,11 @@ class ReportGenerator:
         # 标题
         title = doc.add_heading("税务合同审计报告", level=0)
         title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        self._set_heading_font(title)
+        self._set_heading_font(title, size=24)
 
         # 整体摘要
         summary_heading = doc.add_heading("审计摘要", level=1)
-        self._set_heading_font(summary_heading)
+        self._set_heading_font(summary_heading, size=18)
         self._add_paragraph_with_font(doc, report.summary)
 
         # 统计信息
@@ -93,7 +93,7 @@ class ReportGenerator:
 
         # 各章节详情（仅输出高风险和不合规条款）
         detail_heading = doc.add_heading("详细分析", level=1)
-        self._set_heading_font(detail_heading)
+        self._set_heading_font(detail_heading, size=18)
 
         for section in report.sections:
             # 跳过合规条款，不输出
@@ -113,7 +113,7 @@ class ReportGenerator:
 
         # 章节标题
         section_heading = doc.add_heading(section.section_name, level=2)
-        self._set_heading_font(section_heading)
+        self._set_heading_font(section_heading, size=14)
 
         # 风险等级（颜色标记）
         risk_para = doc.add_paragraph()
