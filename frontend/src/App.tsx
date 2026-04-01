@@ -45,43 +45,89 @@ export function App() {
   };
 
   return (
-    <div className="container">
-      <h1 className="title">税务合同审计助手</h1>
+    <div className="app-container">
+      {/* Hero Header */}
+      <header className="hero">
+        <div className="hero-content">
+          <h1 className="hero-title">税务合同审计助手</h1>
+          <div className="gold-line" />
+          <p className="hero-subtitle">智能合规分析 · 专业风险识别</p>
+        </div>
+      </header>
 
-      <FileUpload
-        onFileSelect={handleFileSelect}
-        disabled={status === 'uploading' || status === 'processing'}
-      />
+      {/* Main Content */}
+      <main className="main-content">
+        {/* Upload Card */}
+        <div className={`upload-card ${status === 'uploading' ? 'processing-overlay' : ''}`}>
+          <FileUpload
+            onFileSelect={handleFileSelect}
+            disabled={status === 'uploading' || status === 'processing'}
+            selectedFile={selectedFile}
+          />
 
-      {status === 'idle' && selectedFile && (
-        <button
-          className="btn start-btn"
-          onClick={handleStart}
-          disabled={!selectedFile}
-        >
-          开始审计
-        </button>
-      )}
+          {status === 'idle' && selectedFile && (
+            <div style={{ textAlign: 'center' }}>
+              <button
+                className="btn-primary"
+                onClick={handleStart}
+                disabled={!selectedFile}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+                开始审计
+              </button>
+            </div>
+          )}
 
-      {(status === 'uploading' || status === 'processing') && (
-        <ProgressBar
-          current={progress.current}
-          total={progress.total}
-          sectionName={progress.section}
-        />
-      )}
+          {(status === 'uploading' || status === 'processing') && (
+            <ProgressBar
+              current={progress.current}
+              total={progress.total}
+              sectionName={progress.section}
+            />
+          )}
 
-      {status === 'error' && (
-        <p className="error-message">{error}</p>
-      )}
+          {status === 'error' && (
+            <div className="error-section">
+              <svg className="error-icon" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+              <p className="error-message">{error}</p>
+              <button className="btn-secondary" onClick={handleReset} style={{ marginTop: '1rem' }}>
+                重新上传
+              </button>
+            </div>
+          )}
+        </div>
 
-      {status === 'done' && resultBlob && (
-        <DownloadButton
-          blob={resultBlob}
-          filename="审计报告.docx"
-          onReset={handleReset}
-        />
-      )}
+        {/* Success State */}
+        {status === 'done' && resultBlob && (
+          <div className="success-section">
+            <div className="success-icon-wrapper">
+              <svg className="success-icon" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <h2 className="success-title">审计完成</h2>
+            <p className="success-subtitle">您的合同合规性审计报告已生成</p>
+            <DownloadButton
+              blob={resultBlob}
+              filename="审计报告.docx"
+              onReset={handleReset}
+            />
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="footer">
+        <p className="footer-text">
+          Powered by <span className="footer-brand">GLM-5</span> · 专业税务合规智能分析
+        </p>
+      </footer>
     </div>
   );
 }
