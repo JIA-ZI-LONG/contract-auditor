@@ -91,11 +91,14 @@ class ReportGenerator:
         run3 = stats_para.add_run(f"不合规条款: {non_compliant_count}")
         self._set_run_font(run3, bold=True)
 
-        # 各章节详情
+        # 各章节详情（仅输出高风险和不合规条款）
         detail_heading = doc.add_heading("详细分析", level=1)
         self._set_heading_font(detail_heading)
 
         for section in report.sections:
+            # 跳过合规条款，不输出
+            if section.risk_level == "合规":
+                continue
             self._add_section(doc, section)
 
         # 保存文件
