@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FileUpload } from './components/FileUpload';
 import { ProgressBar } from './components/ProgressBar';
 import { DownloadButton } from './components/DownloadButton';
-import { uploadContractWithProgress, ProgressEvent } from './api/upload';
+import { uploadContractWithProgress, type ProgressEvent } from './api/upload';
 import './App.css';
 
 type Status = 'idle' | 'uploading' | 'processing' | 'done' | 'error';
