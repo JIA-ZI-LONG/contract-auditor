@@ -13,7 +13,7 @@ FONT_SONGTI = "宋体"
 
 
 class ReportGenerator:
-    """生成审计报告docx"""
+    """生成审阅报告docx"""
 
     def _set_run_font(self, run, font_name: str = FONT_SONGTI, size: int = 12,
                       bold: bool = False, italic: bool = False):
@@ -47,12 +47,12 @@ class ReportGenerator:
         self._set_run_font(run, bold=bold, italic=italic)
         return para
 
-    def generate(self, report: AuditReport, output_filename: str = "审计报告.docx") -> str:
+    def generate(self, report: AuditReport, output_filename: str = "审阅报告.docx") -> str:
         """
-        生成审计报告
+        生成审阅报告
 
         Args:
-            report: 审计报告数据
+            report: 审阅报告数据
             output_filename: 输出文件名
 
         Returns:
@@ -67,12 +67,12 @@ class ReportGenerator:
         style._element.rPr.rFonts.set(qn('w:eastAsia'), FONT_SONGTI)
 
         # 标题
-        title = doc.add_heading("税务合同审计报告", level=0)
+        title = doc.add_heading("税务合同审阅报告", level=0)
         title.alignment = WD_ALIGN_PARAGRAPH.CENTER
         self._set_heading_font(title, size=24)
 
         # 整体摘要
-        summary_heading = doc.add_heading("审计摘要", level=1)
+        summary_heading = doc.add_heading("审阅摘要", level=1)
         self._set_heading_font(summary_heading, size=18)
         self._add_paragraph_with_font(doc, report.summary)
 
@@ -169,5 +169,5 @@ class ReportGenerator:
 
         # 分隔线
         divider_para = doc.add_paragraph()
-        divider_run = divider_para.add_run("─" * 40)
+        divider_run = divider_para.add_run("─" * 37)
         self._set_run_font(divider_run)

@@ -51,7 +51,7 @@ export function uploadContractWithProgress(
 
               if (event.stage === 'done') {
                 // 下载报告
-                fetch(`${API_BASE}/api/download/审计报告.docx`)
+                fetch(`${API_BASE}/api/download/审阅报告.docx`)
                   .then(res => res.blob())
                   .then(blob => resolve(blob))
                   .catch(() => resolve(new Blob()));

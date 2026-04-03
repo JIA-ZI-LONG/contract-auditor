@@ -10,7 +10,7 @@ export function ProgressBar({ current, total, sectionName }: ProgressBarProps) {
   return (
     <div className="progress-section">
       <div className="progress-header">
-        <span className="progress-title">审计进度</span>
+        <span className="progress-title">审阅进度</span>
         <span className="progress-stats">
           {total > 0 ? `${current} / ${total} 章节` : '准备中...'}
         </span>

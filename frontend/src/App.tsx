@@ -39,7 +39,7 @@ export function App() {
       setStatus('done');
     } catch (err) {
       setStatus('error');
-      setError(err instanceof Error ? err.message : '审计失败，请重试');
+      setError(err instanceof Error ? err.message : '审阅失败，请重试');
     }
   };
 
@@ -56,7 +56,7 @@ export function App() {
       {/* Hero Header */}
       <header className="hero">
         <div className="hero-content">
-          <h1 className="hero-title">智能合规审计助手</h1>
+          <h1 className="hero-title">智能合规审阅助手</h1>
           <div className="gold-line" />
           <p className="hero-subtitle">智能合规分析 · 专业风险识别</p>
         </div>
@@ -82,7 +82,7 @@ export function App() {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M9 18l6-6-6-6" />
                 </svg>
-                开始审计
+                开始审阅
               </button>
             </div>
           )}
@@ -118,11 +118,11 @@ export function App() {
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <h2 className="success-title">审计完成</h2>
-            <p className="success-subtitle">您的合同合规性审计报告已生成</p>
+            <h2 className="success-title">审阅完成</h2>
+            <p className="success-subtitle">您的合同合规性审阅报告已生成</p>
             <DownloadButton
               blob={resultBlob}
-              filename="审计报告.docx"
+              filename="审阅报告.docx"
               onReset={handleReset}
             />
           </div>

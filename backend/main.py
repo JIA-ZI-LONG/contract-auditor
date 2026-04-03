@@ -16,7 +16,7 @@ from models.schemas import AuditReport, SectionAuditResult
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="税务合同审计助手", version="1.0.0")
+app = FastAPI(title="税务合同审阅助手", version="1.0.0")
 
 # CORS配置（允许前端访问）
 app.add_middleware(
@@ -81,7 +81,7 @@ async def process_contract_with_progress(temp_path: str, filename: str):
         high_risk_count = sum(1 for r in audit_results if r.risk_level == "高风险")
         non_compliant_count = sum(1 for r in audit_results if r.risk_level == "不合规")
 
-        summary = f"共审计{len(audit_results)}个章节，"
+        summary = f"共审阅{len(audit_results)}个章节，"
         if non_compliant_count > 0:
             summary += f"{non_compliant_count}个不合规条款需立即整改，"
         if high_risk_count > 0:
@@ -92,7 +92,7 @@ async def process_contract_with_progress(temp_path: str, filename: str):
         # 4. 生成报告
         yield progress_event("generating", len(sections), len(sections), "正在生成报告...")
         report = AuditReport(sections=audit_results, summary=summary)
-        report_path = report_generator.generate(report, "审计报告.docx")
+        report_path = report_generator.generate(report, "审阅报告.docx")
 
         # 5. 完成
         yield progress_event("done", len(sections), len(sections), filename)
@@ -106,7 +106,7 @@ async def process_contract_with_progress(temp_path: str, filename: str):
 @app.post("/api/upload-stream")
 async def upload_contract_stream(file: UploadFile = File(...)):
     """
-    上传合同进行审计，通过SSE返回进度和结果
+    上传合同进行审阅，通过SSE返回进度和结果
 
     Args:
         file: docx合同文件
@@ -138,8 +138,8 @@ async def upload_contract_stream(file: UploadFile = File(...)):
 
 @app.get("/api/download/{filename}")
 async def download_report(filename: str):
-    """下载审计报告"""
-    report_path = os.path.join(os.getcwd(), "审计报告.docx")
+    """下载审阅报告"""
+    report_path = os.path.join(os.getcwd(), "审阅报告.docx")
     if not os.path.exists(report_path):
         raise HTTPException(status_code=404, detail="报告不存在")
 
