@@ -169,5 +169,5 @@ class ReportGenerator:
 
         # 分隔线
         divider_para = doc.add_paragraph()
-        divider_run = divider_para.add_run("─" * 37)
+        divider_run = divider_para.add_run("─" * 36)
         self._set_run_font(divider_run)
