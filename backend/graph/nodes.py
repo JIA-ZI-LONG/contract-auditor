@@ -67,9 +67,9 @@ def extract_keywords_node(state: AuditState) -> Dict[str, Any]:
     """
     关键词提取节点
 
-    演示 LLM 结构化输出：
-    - with_structured_output 绑定 Pydantic Schema
-    - 自动解析 JSON 为 Python 对象
+    演示 LCEL 链式调用：
+    - 使用 | 操作符连接 prompt 和 llm
+    - 自动支持流式、批处理、异步
     """
     logger.info("=== 节点: extract_keywords ===")
 
@@ -77,13 +77,10 @@ def extract_keywords_node(state: AuditState) -> Dict[str, Any]:
     section = state["sections"][idx]
     clause = section["content"]
 
-    # 使用结构化输出
+    # LCEL 链式调用: prompt | llm
     llm = get_llm()
-    llm_with_schema = llm.with_structured_output(KeywordOutput)
-
-    # 生成 prompt 并调用
-    prompt = KEYWORD_PROMPT.format(clause=clause)
-    result: KeywordOutput = llm_with_schema.invoke(prompt)
+    chain = KEYWORD_PROMPT | llm.with_structured_output(KeywordOutput)
+    result: KeywordOutput = chain.invoke({"clause": clause})
 
     keywords = result.keywords
     logger.info(f"章节 [{section['section_name']}] 关键词: {keywords}")
@@ -119,9 +116,9 @@ def judge_node(state: AuditState) -> Dict[str, Any]:
     """
     合规判定节点
 
-    演示复杂结构化输出：
-    - 使用 Literal 类型约束枚举值
-    - 嵌套列表结构
+    演示 LCEL 链式调用 + 结构化输出：
+    - prompt | llm 组合成链
+    - with_structured_output 自动解析为 Pydantic 模型
     """
     logger.info("=== 节点: judge ===")
 
@@ -136,12 +133,13 @@ def judge_node(state: AuditState) -> Dict[str, Any]:
         for i, r in enumerate(regulations)
     ]) if regulations else "未找到相关法规"
 
-    # 使用结构化输出
+    # LCEL 链式调用
     llm = get_llm()
-    llm_with_schema = llm.with_structured_output(ComplianceJudgment)
-
-    prompt = COMPLIANCE_PROMPT.format(clause=clause, regulations=reg_text)
-    result: ComplianceJudgment = llm_with_schema.invoke(prompt)
+    chain = COMPLIANCE_PROMPT | llm.with_structured_output(ComplianceJudgment)
+    result: ComplianceJudgment = chain.invoke({
+        "clause": clause,
+        "regulations": reg_text
+    })
 
     logger.info(f"章节 [{section['section_name']}] 判定: {result.risk_level}")
 
@@ -181,9 +179,9 @@ def summary_node(state: AuditState) -> Dict[str, Any]:
     """
     摘要生成节点
 
-    演示 LLM 摘要生成：
-    - 根据审阅结果生成总结
-    - 不使用结构化输出，直接生成文本
+    演示 LCEL 链式调用 + 普通文本输出：
+    - prompt | llm 组合
+    - 不使用结构化输出，直接获取字符串
     """
     logger.info("=== 节点: summary ===")
 
@@ -194,9 +192,6 @@ def summary_node(state: AuditState) -> Dict[str, Any]:
     high_risk_count = sum(1 for r in audit_results if r["risk_level"] == "高风险")
     non_compliant_count = sum(1 for r in audit_results if r["risk_level"] == "不合规")
 
-    # 使用 LLM 生成摘要
-    llm = get_llm()
-
     results_summary = f"""
     共审阅 {len(audit_results)} 个章节：
     - 合规条款: {compliant_count} 个
@@ -204,10 +199,13 @@ def summary_node(state: AuditState) -> Dict[str, Any]:
     - 不合规条款: {non_compliant_count} 个
     """
 
-    prompt = SUMMARY_PROMPT.format(audit_results_summary=results_summary)
-    summary = llm.invoke(prompt).content
+    # LCEL 链式调用
+    llm = get_llm()
+    chain = SUMMARY_PROMPT | llm
+    response = chain.invoke({"audit_results_summary": results_summary})
+    summary = response.content
 
-    logger.info(f"摘要生成完成")
+    logger.info("摘要生成完成")
 
     return {"summary": summary}
 

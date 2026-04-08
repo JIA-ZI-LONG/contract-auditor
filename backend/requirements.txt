@@ -8,8 +8,8 @@ python-multipart>=0.0.6
 pytest>=7.0.0
 pytest-asyncio>=0.21.0
 
-# LangChain/LangGraph (latest versions)
-langchain>=0.3.0
-langchain-openai>=0.3.0
-langgraph>=0.2.0
-langchain-core>=0.3.0
+# LangChain/LangGraph (latest 1.x versions)
+langchain>=1.0.0
+langchain-openai>=1.0.0
+langgraph>=1.0.0
+langchain-core>=1.0.0

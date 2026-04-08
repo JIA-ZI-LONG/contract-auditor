@@ -14,12 +14,10 @@ from langchain_core.prompts import ChatPromptTemplate
 
 KEYWORD_PROMPT = ChatPromptTemplate.from_messages([
     ("system", """你是一个税务合同分析专家。你的任务是从合同条款中提取用于搜索相关税务法规的关键词。
-
 提取规则：
 1. 提取3-5个关键词，聚焦税务合规相关内容
 2. 关键词应能匹配到税务法规库中的相关文档
 3. 优先选择：税种、税率、发票、付款、违约金等税务核心概念
-
 请严格按照指定的 JSON Schema 格式输出关键词列表。"""),
     ("human", "请从以下合同条款中提取搜索关键词：\n\n{clause}")
 ])
