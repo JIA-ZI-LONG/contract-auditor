@@ -42,14 +42,6 @@ class AuditReport(BaseModel):
     summary: str = ""
 
 
-class AuditProgress(BaseModel):
-    """审计进度（用于前端实时显示）"""
-    current_section: int
-    total_sections: int
-    section_name: str
-    status: str  # "processing"/"completed"
-
-
 # ============ LLM 结构化输出 Schema ============
 
 class KeywordOutput(BaseModel):

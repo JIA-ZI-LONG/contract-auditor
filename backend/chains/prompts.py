@@ -1,8 +1,9 @@
+# backend/chains/prompts.py
+
 """
 Prompt 模板定义
 
-演示 LangChain PromptTemplate 模式：
-- 使用 ChatPromptTemplate 定义对话模板
+演示 LangChain ChatPromptTemplate：
 - System message 设置 AI 角色
 - Human message 作为用户输入
 """
@@ -10,8 +11,7 @@ Prompt 模板定义
 from langchain_core.prompts import ChatPromptTemplate
 
 
-# ============ 关键词提取 Prompt ============
-
+# 关键词提取 Prompt
 KEYWORD_PROMPT = ChatPromptTemplate.from_messages([
     ("system", """你是一个税务合同分析专家。你的任务是从合同条款中提取用于搜索相关税务法规的关键词。
 提取规则：
@@ -23,8 +23,7 @@ KEYWORD_PROMPT = ChatPromptTemplate.from_messages([
 ])
 
 
-# ============ 合规判定 Prompt ============
-
+# 合规判定 Prompt
 COMPLIANCE_PROMPT = ChatPromptTemplate.from_messages([
     ("system", """你是一个税务合同合规审计专家。你的任务是根据税务法规判断合同条款的合规性。
 
@@ -51,8 +50,7 @@ COMPLIANCE_PROMPT = ChatPromptTemplate.from_messages([
 ])
 
 
-# ============ 摘要生成 Prompt ============
-
+# 摘要生成 Prompt
 SUMMARY_PROMPT = ChatPromptTemplate.from_messages([
     ("system", """你是一个税务合同审阅报告撰写专家。你的任务是根据审阅结果生成简洁的摘要。
 
